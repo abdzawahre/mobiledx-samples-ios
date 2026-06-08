@@ -15,6 +15,9 @@ jobs:
       - name: Select Xcode 16
         run: sudo xcode-select -s /Applications/Xcode_16.app
 
+      - name: Install iOS 18 Simulator Runtime
+        run: xcodebuild -downloadPlatform iOS
+
       - name: Remove Firebase plist
         run: rm -f GCMessengerSDKSample/GCMessengerSDKSample/GoogleService-Info.plist
 
@@ -24,9 +27,12 @@ jobs:
           rm -rf Pods Podfile.lock
           pod install --repo-update
 
-      - name: List schemes
+      - name: Fix pod deployment targets
         run: |
-          xcodebuild -workspace GCMessengerSDKSample/GCMessengerSDKSample.xcworkspace -list
+          find GCMessengerSDKSample/Pods -name "*.xcconfig" | xargs sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = 9.0/IPHONEOS_DEPLOYMENT_TARGET = 12.0/g'
+
+      - name: Install SwiftLint
+        run: brew install swiftlint
 
       - name: Build for Simulator
         run: |
